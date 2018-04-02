@@ -22,16 +22,33 @@ var previousMousePosition = {
     x: 0,
     y: 0
 };
+
+var lastPosition = { x: 0, y: 0 }
+var startPosition = null
+var movingPosition = null
 $(renderer.domElement).on('mousedown', function(e) {
+  console.log(e.offsetX, e.offsetY)
     isDragging = true;
+    startPosition = { x: e.clientX, y: e.clientY }
 })
 .on('mousemove', function(e) {
-    var deltaMove = {
+  if (!startPosition) {
+    return
+  }
+  movingPosition = { x: e.clientX, y: e.clientY }
+
+  var deltaMove = {
+    x: movingPosition.x - startPosition.x,
+    y: movingPosition.y - startPosition.y
+  }
+
+    var deltaMove2 = {
         x: e.offsetX-previousMousePosition.x,
         y: e.offsetY-previousMousePosition.y
     };
+    console.log(deltaMove, deltaMove2)
 
-    if(isDragging) {
+    // if(isDragging) {
 
         var deltaRotationQuaternion = new three.Quaternion()
             .setFromEuler(new three.Euler(
@@ -42,17 +59,22 @@ $(renderer.domElement).on('mousedown', function(e) {
             ));
 
         cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
-    }
+    // }
 
     previousMousePosition = {
         x: e.offsetX,
         y: e.offsetY
-    };
+    }
+    startPosition = { x: e.clientX, y: e.clientY }
 });
 /* */
 
 $(document).on('mouseup', function(e) {
+  if (!startPosition) {
+    return
+  }
     isDragging = false;
+    startPosition = null
 });
 
 // shim layer with setTimeout fallback
